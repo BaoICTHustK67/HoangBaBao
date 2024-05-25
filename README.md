@@ -221,5 +221,8 @@ if __name__ == '__main__':
     unittest.main()
 
 ```
+- Testing Result
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/b96f1147-9eca-41db-9013-5149fd304262)
+
 ## II. Deploy Web Application Using DevOps Tools And Practices
 
