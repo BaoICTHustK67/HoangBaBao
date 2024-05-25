@@ -280,5 +280,73 @@ CMD [ "flask", "run", "--host=0.0.0.0", "--port=4000"]
 - Build History for Backend Image
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3ff81daa-b2f5-4137-98d6-d9bc17a2ef11)
 
+## Continuous Integration
+- I use Github Actions as the CI tool
+- Create an python-app.yaml file inside the .github/workflows folders
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/b32fe7ce-cb9b-49b8-a342-96216ce02ce0)
+- Content of the python-app.yaml file
+```
+name: CI
+
+on:
+  push:
+    branches:
+      - main  
+  pull_request:
+    branches:
+      - main  
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      env:
+        FLASK_ENV: test  
+      run: |
+        python test_api.py
+```
+- Output log of the CI workflow
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/c507ce63-0d69-4d77-9c60-ecc1691beaac)
+  - Set up job
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/c6daa2e9-79cf-43be-8506-7f434b5cd80e)
+
+  - Checkout code
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/f8e574fb-3ddd-4462-ac54-089068fa1da3)
+
+  - Set up Python
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/40bdc40b-7ab1-4163-91d7-5fd85e5a0407)
+
+  - Install dependencies
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/81b8ad2b-a441-4672-ae07-cbc5d506c3bd)
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/8828bae7-1fe6-47b8-94e3-79a9109aef37)
+
+
+  - Run tests
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a338e619-6412-4604-98da-1c80a7a554d0)
+
+  
+  - Post Set up Python
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/8ba12521-051a-44c8-ac3e-3ebab02eda48)
+
+  - Post Checkout code
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9b97b37a-aec4-4968-8de0-5d3f40ea53fb)
+
+  - Complete job     
+  ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/1d7009e4-4bff-4a23-8229-0e8dafad6dfb)
 
 
