@@ -6,4 +6,8 @@
 - II. Deploy Web Application Using DevOps Tools And Practices
   -  1. Containerization
   -  2. Continuous Integration
-  -  3. Automation 
+  -  3. Automation
+  
+## I. 3 Tier Web Application Development
+### Tech Stack
+1. Front-end server: using ReactJS
