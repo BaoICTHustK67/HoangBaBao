@@ -225,7 +225,48 @@ if __name__ == '__main__':
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/b96f1147-9eca-41db-9013-5149fd304262)
 
 ### Backend SourceCode Repo:
-- Link: [link]https://github.com/BaoICTHustK67/VDT_backend
+- Link: https://github.com/BaoICTHustK67/VDT_backend
+
+### Frontend SourceCode Repo:
+- Link: https://github.com/BaoICTHustK67/VDT_frontend
 
 ## II. Deploy Web Application Using DevOps Tools And Practices
+### 1. Containerization
+- Dockerfile for Frontend with ReactJS
+```
+# Use Node.js 20 image as base
+FROM node:20-alpine
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json .
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+```
+
+- Dockerfile for Backend with Flask
+```
+# Use the official Python image as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 4000
+
+CMD [ "flask", "run", "--host=0.0.0.0", "--port=4000"]
+
+```
 
