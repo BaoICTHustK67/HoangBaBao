@@ -31,7 +31,7 @@ Flask-SQLAlchemy
 flask-cors
 psycopg2-binary
 ```
-- Create an app.py to implements the api
+- Create an app.py to implements the api (CRUD)
 ```
 from flask import request, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -129,5 +129,12 @@ def delete_student(student_id):
     db.session.commit()
 
     return jsonify({"message":"Student deleted!"}), 200
+```
+### Database using PostgresSQL
+- I host an database on localhost with the following connection variables:
+```
+  POSTGRES_DB=flask_db
+  POSTGRES_USER=postgres
+  POSTGRES_PASSWORD=postgres
 ```
 
