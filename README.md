@@ -139,7 +139,6 @@ def delete_student(student_id):
 ```
 ### Unit Tests for APIs
 - I have write unit test for API using unnittest module
-## II. Deploy Web Application Using DevOps Tools And Practices
 ```
 import unittest
 import json
@@ -222,4 +221,5 @@ if __name__ == '__main__':
     unittest.main()
 
 ```
+## II. Deploy Web Application Using DevOps Tools And Practices
 
