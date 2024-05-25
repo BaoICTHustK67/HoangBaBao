@@ -249,6 +249,11 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 ```
+- Build Result for Frontend Image
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/04e6eeb8-b29c-49d8-a87f-9d6d97d0bc62)
+
+-Build History for Frontend Image
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/139499d8-8161-4064-9985-2a7fca724ed6)
 
 - Dockerfile for Backend with Flask
 ```
@@ -269,4 +274,11 @@ EXPOSE 4000
 CMD [ "flask", "run", "--host=0.0.0.0", "--port=4000"]
 
 ```
+- Build Result for Backend Image
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/6777c735-eacf-425f-97c5-6a38081554ca)
+
+- Build History for Backend Image
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3ff81daa-b2f5-4137-98d6-d9bc17a2ef11)
+
+
 
