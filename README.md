@@ -418,7 +418,7 @@ $ sudo apt install ansibl
 ## 1. Ý tưởng
 
 ## 1. Ý tưởng
-Với lượng data ngày càng lớn, đa dạng ở nhiều format, đến từ nhiều nguồn khác nhau(hình ảnh, âm thanh, text, ...), việc kiểm soát và quản lý data luôn là vấn đề nhức nhối đặc biệt là ở các lĩnh vực như là Big Data, ML, AI,... nơi mà luôn cần nhiều dữ liệu thực tế. Vì vậy rất là cần thiết để có thể phát triển một giải pháp mà các nhà khoa học, nhà phát triển dữ liệu và những người khác có thể sử dụng để tạo thử nghiệm của họ một cách dễ dàng và thành công. Để kiểm tra và sửa đổi dữ liệu một cách an toàn, em đã chọn ra một số ứng dụng khá ổn định về mặt hiệu năng và giá cả
+Với lượng data ngày càng lớn, đa dạng ở nhiều format(hình ảnh, âm thanh, text, ...), đến từ nhiều nguồn khác nhau, việc kiểm soát và quản lý data luôn là vấn đề nhức nhối đặc biệt là ở các lĩnh vực như là Big Data, ML, AI,... nơi mà luôn cần nhiều dữ liệu thực tế. Vì vậy rất là cần thiết để có thể phát triển một giải pháp mà các nhà khoa học, nhà phát triển dữ liệu và những người khác có thể sử dụng để tạo thử nghiệm của họ một cách dễ dàng và thành công. Để kiểm tra và sửa đổi dữ liệu một cách an toàn, em đã chọn ra một số ứng dụng khá ổn định về mặt hiệu năng và giá cả
 
 Người dùng có thể gửi Spark "submits" tới cụm K8s sử dụng Jupyter Notebook, và cụm K8s sẽ xử lý các khối lượng công việc này và lưu trữ dữ liệu kết quả trên một nhánh cụ thể của Iceberg (quản lý lớp metadata của dữ liệu) do Nessie catalog quản lý
 
