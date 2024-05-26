@@ -360,7 +360,7 @@ jobs:
   
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/94824171-a068-4f6b-92ea-9510093c6032)
 
-- Multihost deployment (each host each service)
+- Multihost deployment (each host per service)
 
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ae1c39c4-c386-4068-bd81-3a2b1fff005a)
 
