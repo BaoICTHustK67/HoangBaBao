@@ -463,6 +463,19 @@ Nessie là một intelligent metastore dành cho Apache Iceberg. Nó cung cấp 
 ### Jupyter Notebook - Hub là gì?
 Jupyter Notebook là ứng dụng web để tạo và chia sẻ tài liệu code
 
+### Apache Iceberg là gì?
+Iceberg là một định dạng hiệu suất cao dành cho các bảng phân tích dữ liệu khổng lồ. Iceberg mang lại độ tin cậy và sự đơn giản của SQL table cho dữ liệu lớn, đồng thời giúp các công cụ như Spark, Trino, Flink, Presto, Hive và Impala có thể làm việc an toàn với cùng một bảng tại cùng một thời điểm
+
+### Lợi ích của Apache Iceberg
+- Expressive SQL : Iceberg hỗ trợ các lệnh SQL linh hoạt để hợp nhất dữ liệu mới, cập nhật các hàng hiện có và thực hiện xóa hàng, cột. Iceberg có thể viết lại các tệp dữ liệu để có hiệu suất đọc cao hơn và thời gian nâng cấp nhanh hơn
+- Full Schema Evolution: Việc thêm cột sẽ không mang lại dữ liệu rác, các cột có thể được đổi tên và sắp xếp lại. Điều tuyệt vời nhất là những thay đổi về schema không bao giờ yêu cầu phải viết lại bảng
+- Hidden Partitioning: Iceberg xử lý công việc nhàm chán và dễ lỗi khi tự tạo các giá trị partition cho các hàng trong bảng và tự động bỏ qua các partition và tệp không cần thiết. Không cần extra filters cho các truy vấn nhanh và bố cục bảng có thể được cập nhật khi dữ liệu hoặc truy vấn thay đổi.
+- Time Travel and Rollback: Du hành thời gian cho phép các truy vấn có thể lặp lại sử dụng những snapshot giống nhau của bảng hoặc cho phép người dùng dễ dàng kiểm tra các thay đổi. Version rollback cho phép người dùng nhanh chóng khắc phục sự cố bằng cách đặt lại bảng về trạng thái trước khi bị ảnh hưởng.
+- Data Compaction: Việc nén dữ liệu được hỗ trợ ngay lập tức và có thể chọn từ các chiến lược viết lại khác nhau như bin-packing hoặc sắp xếp để tối ưu hóa bố cục và kích thước tệp
+### Kiến trúc của Apache Iceberg
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/81029f10-776e-4fe5-8626-f478747ea65f)
+
+- Bảng chứa metadata pointer -> metadata file -> manifestlist (tập hợp các manifest file tạo thành snapshot) -> manifest file(chứa những thông tin về data files) -> data files
 
 ## Triển khai giải pháp
 
@@ -685,6 +698,288 @@ helm install minio -n minio --create-namespace --set auth.rootUser=minio-admin -
 
 
 ### Cài đặt Jupyter Notebook
+- Tạo namespace cho notebook
+
+```
+kubectl create ns notebook
+```
+
+- Tạo pv cho notebook
+
+```
+cat << EOF | kubectl apply -n notebook -f -
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: notebook-spark
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /data/volumes/notebook-spark
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - redhat-poc
+EOF
+```
+
+- Tạo pvc và connect tới pv mà đã được tạo ở trước
+
+```
+cat << EOF | kubectl apply -n notebook -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-notebook-pvc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+EOF
+```
+- Tạo deployment của notebook với volumes được mount từ pvc -> pv bên ngoài worker node
+```
+cat << EOF | kubectl apply -n notebook -f - 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: notebook
+  name: my-notebook-deployment
+  labels:
+    app: my-notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-notebook
+  template:
+    metadata:
+      labels:
+        app: my-notebook
+    spec:
+      containers:
+      - name: my-notebook
+        image: jupyter/pyspark-notebook:spark-3.4.1
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 0
+        ports:
+          - containerPort: 8888
+        volumeMounts:
+          - mountPath: /root
+            name: my-notebook-pv
+        workingDir: /root
+        resources:
+          limits:
+            memory: 1Gi
+      volumes:
+        - name: my-notebook-pv
+          persistentVolumeClaim:
+            claimName: my-notebook-pvc
+EOF
+```
+
+- Kiểm tra xem deployment đã được chạy thành công hay chưa
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/cf9a9abc-0d0d-4938-b9ec-ed2287072d5e)
+
+- Lấy token của notebook và sử dụng port-forward để truy cập vào UI
+  
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/2f38af6a-3193-4ccb-9ccd-7f4be214232d)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/82ca5b91-d5a5-448d-a1de-6d8c601345ec)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ee468348-b8b5-403b-9978-29d44b536b91)
+
+- Cài đặt môi trường của Jupyter để Spark context có thể gửi API tới k8s trong client mode với kubeconfig file
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e1b9e512-12b3-419a-afdf-4e965253e956)
+
+- Kiểm tra xem đã kết nối thành công bằng việc dùng kubelet client
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/6da64633-3e92-4d09-a925-c65da7410f4e)
+
+### Triển khai kiến trúc Iceberg vào trong thực tế sử dụng pyspark
+- Tạo bảng sử dụng pyspark với spark context được setup theo dạng như sau trong juputer notebook
+```
+import pyspark
+from pyspark.sql import SparkSession
+import os
+import pandas as pd
+
+NESSIE_URI="http://10.102.98.113:19120/api/v1"
+AWS_S3_ENDPOINT="http://10.103.154.46:9000"
+WAREHOUSE="s3a://warehouse/"
+SPARK_MASTER="k8s://https://10.96.0.1"
+
+os.environ['AWS_REGION'] = 'NONE'
+os.environ['AWS_ACCESS_KEY_ID'] = '9BKfTrlb3kVxOow94arB'
+os.environ['AWS_SECRET_ACCESS_KEY'] = 'aKRIac38SmNQ0lcKzhFGATs2TZvboPver6pOJPJ8'
+```
+- Setup Spark context tương ứng với những dịch vụ đã triển khai ở trên
+```
+conf = (
+pyspark.SparkConf()
+.setAppName('nessie_icerberg_testing')
+.setMaster(SPARK_MASTER)
+.set("spark.submit.deployMode", "client")
+.set('spark.kubernetes.trust.certificates', 'TRUE')
+.set('spark.driver.host', 'notebook-driver.notebook.svc.cluster.local')
+.set('spark.kubernetes.container.image', 'spark-py')
+.set('spark.kubernetes.dynamicAllocation.enabled', 'false')
+.set('spark.kubernetes.namespace', 'spark') 
+.set('spark.executor.instances', '1')
+.set("spark.kubernetes.executor.cores", "1")
+.set("spark.kubernetes.driver.limit", "1")  
+.set("spark.executorEnv.AWS_REGION",os.environ['AWS_REGION'])
+.set("spark.executorEnv.AWS_ACCESS_KEY_ID",os.environ['AWS_ACCESS_KEY_ID'])
+.set("spark.executorEnv.AWS_SECRET_ACCESS_KEY",os.environ['AWS_SECRET_ACCESS_KEY'])
+.set("spark.executor.memory", "1G")
+.set("spark.driver.memory", "1G")
+.set('spark.jars.packages', """org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.3.0,org.projectnessie.nessie-integrations:nessie-spark-extensions-3.4_2.12:0.71.1,software.amazon.awssdk:core:2.20.156,software.amazon.awssdk:glue:2.20.156,software.amazon.awssdk:utils:2.20.156,software.amazon.awssdk:kms:2.20.156,software.amazon.awssdk:s3:2.20.156,software.amazon.awssdk:dynamodb:2.20.156,software.amazon.awssdk:s3:2.20.156,software.amazon.awssdk:sts:2.20.156,software.amazon.awssdk:url-connection-client:2.20.156""")
+.set('spark.sql.extensions', 'org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions,org.projectnessie.spark.extensions.NessieSparkSessionExtensions')
+.set('spark.sql.catalog.nessie', 'org.apache.iceberg.spark.SparkCatalog')
+.set('spark.sql.catalog.nessie.uri', NESSIE_URI)
+.set('spark.sql.catalog.nessie.ref', 'main')
+.set('spark.sql.catalog.nessie.authentication.type', 'NONE')
+.set('spark.sql.catalog.nessie.catalog-impl', 'org.apache.iceberg.nessie.NessieCatalog')
+.set('spark.sql.catalog.nessie.s3.endpoint', AWS_S3_ENDPOINT)
+.set('spark.sql.catalog.nessie.warehouse', WAREHOUSE)
+.set('spark.sql.catalog.nessie.io-impl', 'org.apache.iceberg.aws.s3.S3FileIO')
+)
+```
+- Xây dụng một spark session sử dụng context ở trên
+```
+spark = SparkSession.builder.config(conf=conf).getOrCreate()
+```
+
+- Tạo database sử dụng spark session
+```
+spark.sql("create database IF NOT EXISTS nessie.pokemons").show()
+```
+
+- Query database đã được tạo
+```
+spark.sql("show databases in nessie").show()
+```
+
+- Tạo một table mới trong database vừa tạo (pokemons.names)
+```
+spark.sql("CREATE TABLE  IF NOT EXISTS  nessie.pokemons.names (name STRING) USING iceberg;").show()
+```
+- Kiểm tra nessie thấy xuất hiện một pointer đến metadata lưu trong Minio
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/90942573-4c87-457a-903a-886be23878ec)
+
+- Kiểm tra Minio (S3 storage) thấy xuất hiện thư mục mới chưa metadata về bảng mới được tạo
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a9603369-8013-4ad9-a8a8-0c82f31da137)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/447b274b-0320-4823-9ceb-d8444b3ecf67)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9f3852e7-3235-4077-9828-56b0db6a3dbe)
+
+- Dữ liệu bên trong metadata file ở trên
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/409e6a30-f5ea-4fcd-ad28-27212466d260)
+
+- Insert một vài data mẫu vào trong bảng để test
+```
+spark.sql("INSERT INTO nessie.pokemons.names VALUES ('Pikachu'), ('Blastoise'), ('Bulbasaur')").toPandas()
+```
+- Ta nhận thấy metadatafile đã được cập nhật thay đổi với lần update dữ liệu này
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/af584564-6ccb-4eab-a22e-3334825222da)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9e722812-e3b9-4141-b167-f82b34eea495)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3f0ca665-3841-4ba9-b02e-468280fd4f68)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3beffef1-8582-4fc2-83a6-3b32d9d5b99d)
+
+- Add thêm một số bản ghi mới ta thấy một số file được tạo ra và từ đấy có thể khái quát được luồng hoạt động của nessie và iceberg trong việc quản lý data và metadata files
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/2eec3550-3a15-486b-af3e-895c33ae7e4c)
+
+
+### Truy vấn thông tin các lớp metadata của Iceberg table
+- Ta có thể truy vấn được tất cả những thông tin liên quan đến các lớp quản lý metadata bên dưới của bảng iceberg
+- Truy vấn spanpshots files
+```
+pd.set_option('display.max_colwidth', 900)
+spark.sql("SELECT * FROM nessie.pokemons.names.snapshots;").toPandas()
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/516fee45-7dbe-421b-9a7d-85ff23616fc3)
+
+- Truy vấn manifest files
+```
+pd.set_option('display.max_colwidth', 900)
+spark.sql("SELECT path FROM nessie.pokemons.names.manifests;").toPandas()
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ecd6e27d-63f8-405d-85de-e4295a9f7087)
+
+- Truy vấn Parket files
+```
+pd.set_option('display.max_colwidth', 900)
+spark.sql("SELECT * FROM nessie.pokemons.names.files;").toPandas()
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e827a260-136b-4abd-90b6-22d605d4f1da)
+
+- Thậm chí có thể truy vấn của lịch sử của bảng
+```
+pd.set_option('display.max_colwidth', 900)
+spark.sql("SELECT * FROM nessie.pokemons.names.history;").toPandas()
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e91e300c-43f5-46c6-90e1-59fcae655169)
+
+### Truy vấn theo thời gian trong Iceberg
+Mỗi bảng trong Apache Iceberg giữ một versioned manifes, do đó các truy vấn theo thời gian và phiên bản có thể sử dụng các phiên bản cũ hơn của manifest
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/4c34983f-7dd0-4088-9844-1f2a3dfb6489)
+
+
+### Truy vấn các nhánh của cùng một bảng
+- Chúng ta có thể truy vấn toàn bộ các nhánh trong bảng iceberg
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/b1137537-f2a9-4586-bdf0-a3d77a621395)
+
+### Tạo nhánh mới sử dụng SparkSQL
+- Khá dễ dàng để tạo nhánh mới trong bảng iceberg, có thể bắt đầu bằng việc tạo một nhánh mới "develop" từ nhánh "main"
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/33b7f0f5-4b0f-4fce-9ad5-b3d7f6421ded)
+
+
+- Lúc này trong UI của nessie xuất hiện các nhánh mình đã tạo và đều cùng trỏ vào một metadata file chung
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/711a81b5-0df6-4ba9-8844-8d0bcbc051e7)
+
+- Insert một số bản ghi mới vào nhánh "develop"
+```
+spark.sql("INSERT INTO nessie.pokemons.`names@develop` VALUES ('Haunter'), ('Gengar'), ('Gastly')").show()
+spark.sql("SELECT * FROM nessie.pokemons.`names@develop`").show()
+spark.sql("SELECT * FROM nessie.pokemons.names").show()
+```
+
+- Lúc này có thể thấy được hai nhánh đã khác biệt nhau về con trỏ đến metadatafile
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/aaa832f1-5b27-4cd8-bae9-48521afbcfb6)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9a0445d1-9358-41e0-b435-ab96dd5b2d40)
+
+
+### Merging nhánh
+- Hiện tại data ở các nhánh đã khác nhau và bây giờ chúng ta có thể thực hiện việc merge hai nhánh lại
+```
+spark.sql("MERGE BRANCH develop INTO main IN nessie").toPandas()
+spark.sql("SELECT * FROM nessie.pokemons.`names@develop`").show()
+spark.sql("SELECT * FROM nessie.pokemons.names").show()
+```
+
+- Sau khi merge thành công thì hai nhánh đã có cùng dữ liệu và con trỏ đến metadata file đã hoàn toàn giống nhau
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a966f81f-0824-4b76-bfe1-99a2600d48bf)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/2dbb618f-2f1a-4222-9856-00c9d13ec468)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/66e627e5-36db-4a4f-b70d-7b497fdc0082)
+
+- Cuối cùng chúng ta có thể kiểm tra các hành động đã thực hiện trên bảng thông qua các commit
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ad5f7dde-6650-4c27-a353-0ac2250d0c9f)
 
 
 
