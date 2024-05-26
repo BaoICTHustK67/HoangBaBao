@@ -385,25 +385,33 @@ $ sudo apt install ansibl
 ```
 5. Ansible Logging Result
 - Database Service
+
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ed9dc7cb-d1cd-4cae-8541-28f9defc1862)
 
 - Backend Service
+
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/29b21ac6-7e6c-4e05-9d7d-59b21abefbcc)
 
 - Web Service
+  
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/58c6c41c-81d8-48cb-939f-0f798aed14c8)
 
 6. Host Deploying Result
 - Database Service
+  
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a3117b56-8410-4411-a967-fd7677d41fe5)
 
 
 - Backend Service
-![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e4389475-8dfc-496a-bf42-a62dc22abe62)
+  
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/951f83d7-25ec-42b1-be62-7408cb0ade5a)
+
 
 
 - Web Service
-![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/f65f0914-2a02-49ae-ae32-1e904b7dd08d)
+  
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/79c3a015-2321-4543-99b0-3781129380bd)
+
 
 
 
