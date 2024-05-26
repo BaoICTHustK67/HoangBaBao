@@ -280,7 +280,7 @@ CMD [ "flask", "run", "--host=0.0.0.0", "--port=4000"]
 - Build History for Backend Image
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3ff81daa-b2f5-4137-98d6-d9bc17a2ef11)
 
-## Continuous Integration
+### 2.Continuous Integration
 - I use Github Actions as the CI tool
 - Create an python-app.yaml file inside the .github/workflows folders
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/b32fe7ce-cb9b-49b8-a342-96216ce02ce0)
@@ -348,5 +348,16 @@ jobs:
 
   - Complete job     
   ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/1d7009e4-4bff-4a23-8229-0e8dafad6dfb)
+### 3. Automation 
+- SourceCode of the ansible playbook: https://github.com/BaoICTHustK67/VDT_ansible_playbook
+- Ansible playbook with one role per service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/1638bd66-830a-4f17-921c-0da2c2df6972)
+- Service Configurations through variables
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/94824171-a068-4f6b-92ea-9510093c6032)
+- Multihost deployment
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ae1c39c4-c386-4068-bd81-3a2b1fff005a)
+
+ 
+
 
 
