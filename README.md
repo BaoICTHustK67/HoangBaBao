@@ -360,11 +360,50 @@ jobs:
   
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/94824171-a068-4f6b-92ea-9510093c6032)
 
-- Multihost deployment
+- Multihost deployment (each host each service)
 
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ae1c39c4-c386-4068-bd81-3a2b1fff005a)
 
 #### Step by step of docker images deployment
+1. Create 3 instances of VM with configurations that allow ssh between them and my local machine
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9c43a737-858b-4279-b37c-fba074b0ba1b)
+
+2. Install ansible on the local machine (Ubuntu)
+```
+$ sudo apt update
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository --yes --update ppa:ansible/ansible
+$ sudo apt install ansibl
+```
+3. Building the ansible-playbook folder with correct configuration with your ec2 context
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/6fb53cfb-e9eb-4539-9d7b-33fda8fec022)
+
+4. Running the ansible playbook
+```
+ ansible-playbook -i hosts deploy_playbook.yaml
+```
+5. Ansible Logging Result
+- Database Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ed9dc7cb-d1cd-4cae-8541-28f9defc1862)
+
+- Backend Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/29b21ac6-7e6c-4e05-9d7d-59b21abefbcc)
+
+- Web Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/58c6c41c-81d8-48cb-939f-0f798aed14c8)
+
+6. Host Deploying Result
+- Database Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a3117b56-8410-4411-a967-fd7677d41fe5)
+
+
+- Backend Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e4389475-8dfc-496a-bf42-a62dc22abe62)
+
+
+- Web Service
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/f65f0914-2a02-49ae-ae32-1e904b7dd08d)
 
 
 
