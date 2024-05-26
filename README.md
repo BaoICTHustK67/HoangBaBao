@@ -445,6 +445,25 @@ Nessie là một intelligent metastore dành cho Apache Iceberg. Nó cung cấp 
 - Với Nessie/Iceberg, bạn có thể thực hiện các thao tác giống như git trong bảng Iceberg, chẳng hạn như tạo nhánh, hợp nhất dữ liệu, v.v. Nó mang lại cho các nhà khoa học dữ liệu rất nhiều sự linh hoạt vì họ có thể thực hiện một bản sao riêng biệt của dữ liệu
 - Thay cho giao thức hive (lỗi thời) JDBC và trifft, nó hỗ trợ giao thức stardadize HTTP thông qua (rest api)
 
+### Minio là gì?
+- MinIO là một giải pháp lưu trữ đối tượng (object storage) cung cấp API tương thích với Amazon Web Services S3 và hỗ trợ tất cả các tính năng cốt lõi của S3
+
+### Spark là gì? - Liệu có phải là một compute engine?
+- Apache Spark là một công cụ phân tích hợp nhất để xử lý dữ liệu quy mô lớn. Nó cung cấp các API cấp cao trong Java, Scala, Python và R và một công cụ được tối ưu hóa hỗ trợ các biểu đồ thực thi chung. Nó cũng hỗ trợ một bộ công cụ cấp cao hơn bao gồm Spark SQL cho SQL và xử lý dữ liệu có cấu trúc, pandas API trên Spark để xử lý công việc của pandas, MLlib cho máy học, GraphX ​​để xử lý đồ thị và Structured Streaming để tính toán gia tăng và xử lý luồng
+
+### Cách hướng tiếp cận khi dùng Spark?
+- Client Mode:
+  Khi người dùng gửi một công việc từ pyspark hoặc spark contexts, spark context sẽ gửi một api đến cụm K8s để tạo các pods trong namespace được chỉ định. Các nhóm này sẽ xử lý tác vụ đồng thời và sau khi hoàn thành, nó sẽ quay trở lại spark driver thông qua headless service => chạy spark và tạo pods trên một cụm đơn lẻ => có thể quá tải tài nguyên
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ace4de41-f965-402e-8317-ba174df258af)
+
+- Cluster Mode:
+  Ở cluster mode, mọi thứ hoạt động gần như chính xác như ở client mode, nhưng K8s chịu trách nhiệm tạo driver và executors. K8s sẽ tạo ra tất cả các spark infrastructure (driver và executors) để xử lý các job và spark-context sẽ kiểm soát và verify job nhận được từ driver => có thể chạy spark và tạo pods đa cụm tránh việc bị quá tài nguyên (auto-scaling,...)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/7ac4c331-8dad-4c90-8a39-a88b97c712e6)
+
+### Jupyter Notebook - Hub là gì?
+Jupyter Notebook là ứng dụng web để tạo và chia sẻ tài liệu code
+
+
 ## Triển khai giải pháp
 
 ### Một số điều kiện triển khai giải pháp
@@ -619,5 +638,62 @@ show dbs
 show collections
 db-refs.find
 ```
+
+### Cài đặt Minio
+- Cách cài đặt của Minio khá đơn giản, đầu tiên chúng ta sẽ tạo pv ở ngoài node và mount vào pod để lưu trữ giữ liệu lâu dài (phòng trường hợp node chết)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e339cec1-6084-4d89-9ee9-39ac21250d64)
+
+- Cài đặt Minio thông qua helm chart có sẵn với các tham số để namespace, user, storage, ...
+```
+helm install minio -n minio --create-namespace --set auth.rootUser=minio-admin --set auth.rootPassword=minio-secret-password --set persistence.storageClass=local-storage oci://registry-1.docker.io/bitnamicharts/minio
+```
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/c89ee529-b14c-4ab7-8d80-30f3fb1036ac)
+
+- Kiểm tra xem pvc đã "bound" và deployment đã "ready" hay chưa
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/7d795b64-42d6-4025-8cf4-483e03834927)
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/f912e404-022c-4dca-8731-1d2538ff7b54)
+
+- Sử dụng port-forward để có thể tương tác với UI của Minio
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/6867b7f0-5add-4975-a874-a42ff9bda87c)
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/e42f4870-bde4-42ff-a656-9ee15b1adb67)
+
+- Tạo một bucket với tên bất kì (trong trường hợp này là warehouse)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/39b82a41-1a13-4a8d-8949-20aab8021336)
+
+- Tạo và save thông tin access key để có thể sử dụng khi tạo spark context
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/58b86c98-aadb-492e-a903-6845c55c104c)
+
+
+### Cài đặt Spark
+- Tạo một namespace spark trên k8s để tiện cho việc quản lý
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9833639f-7e31-41d7-8bff-5bdf8d1b4697)
+
+- Tạo service account để cho phép spark account có thể truy cập vào Kubernetes API server để tạo và xem những pods thực thi
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/d7326b03-ddcf-41f4-a1e4-8973655d23ba)
+
+- Tạo một clusterrolebinding gọi là spark-role liên kết serviceaccount nhằm chỉnh sửa perm trên namespace spark
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/461e783f-e646-4f4c-8c8e-bfcc9feb95b1)
+
+- Tạo spark image của các executor để triển khai
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/025d9c41-7dd6-43f0-bade-520b3729b60a)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/70857de9-9410-45be-a4e7-4410c88eaf89)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/0f7cbf05-2c92-454f-90b0-92ba68266748)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/1782c8e3-6eba-4b45-8fa2-8cb2b78024d5)
+
+
+### Cài đặt Jupyter Notebook
+
+
+
+
+
+
+
+
+
+
 
 
