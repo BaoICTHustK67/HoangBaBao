@@ -1,4 +1,4 @@
-# VDT Midterm Assignments
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/95f32a85-7011-42d2-91e7-9ad1aec7acd5)# VDT Midterm Assignments
 ## Table of Contents
 
 - Contents
@@ -422,16 +422,17 @@ Với lượng data ngày càng lớn, đa dạng ở nhiều format, đến t�
 
 Người dùng có thể gửi Spark "submits" tới cụm K8s sử dụng Jupyter Notebook, và cụm K8s sẽ xử lý các khối lượng công việc này và lưu trữ dữ liệu kết quả trên một nhánh cụ thể của Iceberg (quản lý lớp metadata của dữ liệu) do Nessie catalog quản lý
 
-## Metastore là gì?
+## 2. Một số thuật ngữ cần phải biết
+### Metastore là gì?
 Metastore cung cấp kho lưu trữ siêu dữ liệu trung tâm có thể dễ dàng phân tích để đưa ra các quyết định tối ưu dựa trên dữ liệu và do đó, nó là một thành phần quan trọng của nhiều kiến ​​trúc data lake
 
-## Nessie là gì?
+### Nessie là gì?
 Nessie là một intelligent metastore dành cho Apache Iceberg. Nó cung cấp một giải pháp thay thế hiện đại của Hive Metastore cho Iceberg tables và views , đồng thời cung cấp nhiều tính năng nâng cao để có các kiến trúc data lake hiệu quả hơn. Những tính năng này bao gồm:
   - Thêm hoặc thay đổi dữ liệu trên một nhánh, kiểm tra chất lượng của nhánh đó và hợp nhất các thay đổi đối với tính khả dụng chung của người dùng, tất cả trong cùng một data lake và không ảnh hưởng đến dữ liệu trong môi trường production
   -  Tạo các phiên bản dữ liệu chuyên biệt cho các trường hợp sử dụng cụ thể
   -  Cập nhật nhất quán nhiều bảng, với nhiều thay đổi, do đó loại bỏ sự thiếu nhất quán và sai lệch dữ liệu ở giữa chuỗi thay đổi
 
-## Lợi ích của Nessie 
+### Lợi ích của Nessie 
 - So sánh giữa Nessie Metastore và Hive Metastore
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/62b9ac40-f87a-4eb3-8e89-a01794e2f690)
 - Nessie hỗ trợ nhiều cơ sở dữ liệu RDBMS và NOSQL:
@@ -441,6 +442,179 @@ Nessie là một intelligent metastore dành cho Apache Iceberg. Nó cung cấp 
 - Với Nessie/Iceberg, bạn có thể thực hiện các thao tác giống như git trong bảng Iceberg, chẳng hạn như tạo nhánh, hợp nhất dữ liệu, v.v. Nó mang lại cho các nhà khoa học dữ liệu rất nhiều sự linh hoạt vì họ có thể thực hiện một bản sao riêng biệt của dữ liệu
 - Thay cho giao thức hive (lỗi thời) JDBC và trifft, nó hỗ trợ giao thức stardadize HTTP thông qua (rest api)
 
+## Triển khai giải pháp
 
+### Một số điều kiện triển khai giải pháp
+- Một cụm K8s
+- Sử dụng helm để cài đặt các dịch vụ
+
+### Cài đặt Nessie Database (MongoDB)
+Chúng ta có thể bắt đầu triển khai cơ sở dữ liệu Nessie sau khi K8s hoạt động và đã cài đặt Helm. Chúng ta phải tạo PV K8s để duy trì dữ liệu trong một thư mục cụ thể
+- Đối với mỗi pod/replica mongodb, tạo ba thư mục để lưu trữ dữ liệu lâu dài:
+```
+mkdir -p /data/volumes/mongodb-0 /data/volumes/mongodb-1 /data/volumes/mongodb-2
+```
+- Tạo một namespace riêng để tiện cho việc quản lý và bảo mật, đặt tên là nessie-database
+```
+kubectl create namespace nessie-database
+kubectl config set-context --current --namespace=nessie-database
+```
+- Tạo một local storage class:
+```
+cat << EOF | kubectl apply -f -
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+EOF
+```
+```
+kubectl patch storageclass local-storage -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+```
+- Tạo PersistentVolume với storage class đã tạo và PersistentVolume sẽ nằm ở worker node được chỉ định (bao-workernode)
+```
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: datadir-mongodb-0
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /data/volumes/mongodb-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bao-workernode
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: datadir-mongodb-1
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /data/volumes/mongodb-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bao-workernode
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: datadir-mongodb-2
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /data/volumes/mongodb-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - bao-workernode
+EOF
+```
+- Kiểm tra rằng PV đã được tạo thành công và sẵn sàng (trạng thái Available)
+```
+kubectl get pv
+```
+- Sử dụng helm để deploy MongoDb với thông tin setup của nessie
+```
+helm install --namespace nessie-database  mongodb oci://registry-1.docker.io/bitnamicharts/mongodb  \
+--set replicaCount=3  --set architecture=replicaset  --set auth.databases[0]="nessie" \
+--set auth.replicaSetKey=myreplicasetkey  --set auth.usernames[0]="nessie" \
+--set auth.passwords[0]="nessiepassword"   --set auth.rootPassword=rootpassword \
+--set persistence.storageClass=local-storage
+```
+- Kiểm tra xem helm đã được deploy thành công chưa nếu rồi kiểu tra xem các pv đã nhận được pvc và mount vào các pod hay chưa
+```
+helm list
+kubectl get pv
+```
+### Cài đặt Nessie
+- Tạo namespace tương ứng với ứng dụng
+```
+kubectl create ns nessie
+```
+- Chuyển context k8s sang namespace của nessie và tạo một file mongodb-creds chứa thông tin kết nối đến mongodb => sau đó tạo một k8s secret tương ứng với file đã tạo
+```
+kubectl create secret generic mongodb-creds --from-env-file="$PWD/mongodb-creds"
+```
+- Cải đặt mongodb sử dụng helm chart với connection string đã được setup ở trên
+```
+helm repo add nessie-helm https://charts.projectnessie.org
+helm install --namespace nessie nessie nessie-helm/nessie --set versionStoreType=MONGODB --set mongodb.connectionString="mongodb://mongodb-0.mongodb-headless.nessie-database.svc.cluster.local:27017\,mongodb://mongodb-1.mongodb-headless.nessie-database.svc.cluster.local:27017\,mongodb://mongodb-2.mongodb-headless.nessie-database.svc.cluster.local:27017"
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/616a3a23-cd09-46c4-9b0a-5bb972b3cc0a)
+
+- Kiểm tra xem cài đặt đã chạy ổn định hay chưa qua các câu lệnh
+```
+helm list
+kubectl get deploy
+kubectl get po
+```
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a4836313-c34e-479d-95ee-c1fca8676588)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9dad82f6-2e6a-4930-a1cd-8e5d694c4848)
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/05e0b755-5928-45fc-8a35-aa0342ace2b1)
+
+- Kiểm tra logs của pods để xem kết nối đến MongoDB
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/4f6a0c74-533a-44b7-b718-68691f5421e7)
+
+- Kiểm tra service Nessie đã chạy ổn định hay chưa ở port 19120 sử dụng curl
+```
+kubectl get svc
+
+curl <svc cluster address>:<Port>
+```
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/110a65c4-7763-4bf8-bb0c-156086402764)
+
+- Sử dụng port-forward để truy cập UI
+```
+nohup kubectl --namespace nessie port-forward svc/nessie 19120:19120 --address='192.168.137.10' &
+```
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/98834aa0-755d-4e9c-a543-ec2570b821c1)
+
+- Kiểm tra xem thông tin data ở các branch của nessie liệu đã khớp với dữ liệu ở cụm mongodb chưa
+```
+kubectl config set-context --current --namespace=nessie-database
+Kubectl exec -it mongodb-0 -- mongosh --quiet -u nessie -p nessiepassword --authenticationDatabase nessie
+
+use nessie
+show dbs
+show collections
+db-refs.find
+```
 
 
