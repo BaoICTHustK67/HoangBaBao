@@ -1,4 +1,4 @@
-![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/95f32a85-7011-42d2-91e7-9ad1aec7acd5)# VDT Midterm Assignments
+# VDT Midterm Assignments
 ## Table of Contents
 
 - Contents
