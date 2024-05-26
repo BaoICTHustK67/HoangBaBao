@@ -412,6 +412,35 @@ $ sudo apt install ansibl
   
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/79c3a015-2321-4543-99b0-3781129380bd)
 
+# III. Research Report
+## Title: Apache Nessie Git-like Solution for Data Version Control on Kubernetes
+## Contents
+## 1. Ý tưởng
+
+## 1. Ý tưởng
+Với lượng data ngày càng lớn, đa dạng ở nhiều format, đến từ nhiều nguồn khác nhau(hình ảnh, âm thanh, text, ...), việc kiểm soát và quản lý data luôn là vấn đề nhức nhối đặc biệt là ở các lĩnh vực như là Big Data, ML, AI,... nơi mà luôn cần nhiều dữ liệu thực tế. Vì vậy rất là cần thiết để có thể phát triển một giải pháp mà các nhà khoa học, nhà phát triển dữ liệu và những người khác có thể sử dụng để tạo thử nghiệm của họ một cách dễ dàng và thành công. Để kiểm tra và sửa đổi dữ liệu một cách an toàn, em đã chọn ra một số ứng dụng khá ổn định về mặt hiệu năng và giá cả
+
+Người dùng có thể gửi Spark "submits" tới cụm K8s sử dụng Jupyter Notebook, và cụm K8s sẽ xử lý các khối lượng công việc này và lưu trữ dữ liệu kết quả trên một nhánh cụ thể của Iceberg (quản lý lớp metadata của dữ liệu) do Nessie catalog quản lý
+
+## Metastore là gì?
+Metastore cung cấp kho lưu trữ siêu dữ liệu trung tâm có thể dễ dàng phân tích để đưa ra các quyết định tối ưu dựa trên dữ liệu và do đó, nó là một thành phần quan trọng của nhiều kiến ​​trúc data lake
+
+## Nessie là gì?
+Nessie là một intelligent metastore dành cho Apache Iceberg. Nó cung cấp một giải pháp thay thế hiện đại của Hive Metastore cho Iceberg tables và views , đồng thời cung cấp nhiều tính năng nâng cao để có các kiến trúc data lake hiệu quả hơn. Những tính năng này bao gồm:
+  - Thêm hoặc thay đổi dữ liệu trên một nhánh, kiểm tra chất lượng của nhánh đó và hợp nhất các thay đổi đối với tính khả dụng chung của người dùng, tất cả trong cùng một data lake và không ảnh hưởng đến dữ liệu trong môi trường production
+  -  Tạo các phiên bản dữ liệu chuyên biệt cho các trường hợp sử dụng cụ thể
+  -  Cập nhật nhất quán nhiều bảng, với nhiều thay đổi, do đó loại bỏ sự thiếu nhất quán và sai lệch dữ liệu ở giữa chuỗi thay đổi
+
+## Lợi ích của Nessie 
+- So sánh giữa Nessie Metastore và Hive Metastore
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/62b9ac40-f87a-4eb3-8e89-a01794e2f690)
+- Nessie hỗ trợ nhiều cơ sở dữ liệu RDBMS và NOSQL:
+
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/35956c9a-067f-4e41-8680-e9faf340cc9d)
+
+- Với Nessie/Iceberg, bạn có thể thực hiện các thao tác giống như git trong bảng Iceberg, chẳng hạn như tạo nhánh, hợp nhất dữ liệu, v.v. Nó mang lại cho các nhà khoa học dữ liệu rất nhiều sự linh hoạt vì họ có thể thực hiện một bản sao riêng biệt của dữ liệu
+- Thay cho giao thức hive (lỗi thời) JDBC và trifft, nó hỗ trợ giao thức stardadize HTTP thông qua (rest api)
+
 
 
 
