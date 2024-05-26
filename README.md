@@ -422,6 +422,9 @@ Với lượng data ngày càng lớn, đa dạng ở nhiều format(hình ảnh
 
 Người dùng có thể gửi Spark "submits" tới cụm K8s sử dụng Jupyter Notebook, và cụm K8s sẽ xử lý các khối lượng công việc này và lưu trữ dữ liệu kết quả trên một nhánh cụ thể của Iceberg (quản lý lớp metadata của dữ liệu) do Nessie catalog quản lý
 
+![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/a779af4c-879a-4039-b0da-0021d4d817a1)
+
+
 ## 2. Một số thuật ngữ cần phải biết
 ### Metastore là gì?
 Metastore cung cấp kho lưu trữ siêu dữ liệu trung tâm có thể dễ dàng phân tích để đưa ra các quyết định tối ưu dựa trên dữ liệu và do đó, nó là một thành phần quan trọng của nhiều kiến ​​trúc data lake
