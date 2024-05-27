@@ -279,7 +279,7 @@ CMD [ "flask", "run", "--host=0.0.0.0", "--port=4000"]
 - Build History for Backend Image
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/3ff81daa-b2f5-4137-98d6-d9bc17a2ef11)
 
-### 2.Continuous Integration
+### 2. Continuous Integration
 - I use Github Actions as the CI tool
 - Create an python-app.yaml file inside the .github/workflows folders
 
