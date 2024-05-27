@@ -41,7 +41,8 @@
       - [Truy vấn theo thời gian trong Iceberg](#truy-vấn-theo-thời-gian-trong-iceberg)
       - [Truy vấn các nhánh của cùng một bảng](#truy-vấn-các-nhánh-của-cùng-một-bảng)
       - [Tạo nhánh mới sử dụng SparkSQL](#tạo-nhánh-mới-sử-dụng-sparksql)
-      - [Merging nhánh](#merging-nhánh) 
+      - [Merging nhánh](#merging-nhánh)
+  - [IV. References](#iv-references)
   
 ## I. 3 Tier Web Application Development
 ### Backend SourceCode Repo:
