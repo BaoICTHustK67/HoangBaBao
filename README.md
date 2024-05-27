@@ -2,10 +2,10 @@
 ## Table of Contents
 
 - [I. 3 Tier Web Application Development](#i-3-tier-web-application-development)
-- II. Deploy Web Application Using DevOps Tools And Practices
-  -  1. Containerization
-  -  2. Continuous Integration
-  -  3. Automation
+- [II. Deploy Web Application Using DevOps Tools And Practices](#ii-deploy-web-application-using-devops-tools-and-practices)
+  - [1. Containerization](#1-containerization)
+  - [2. Continuous Integration](#2-continuous-integration)
+  - [3. Automation](#3-automation)
   
 ## I. 3 Tier Web Application Development
 ### Backend SourceCode Repo:
