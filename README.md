@@ -1,7 +1,7 @@
 # VDT Midterm Assignments
 ## Table of Contents
 
-- [I. 3 Tier Web Application Development](#chuong)
+- [I. 3 Tier Web Application Development](#i-3-tier-web-application-development)
 - II. Deploy Web Application Using DevOps Tools And Practices
   -  1. Containerization
   -  2. Continuous Integration
