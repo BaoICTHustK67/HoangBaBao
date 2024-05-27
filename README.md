@@ -2,6 +2,14 @@
 ## Table of Contents
 
 - [I. 3 Tier Web Application Development](#i-3-tier-web-application-development)
+  - [Backend SourceCode Repo](#backend-sourcecode-repo)
+  - [Frontend SourceCode Repo](#frontend-sourcecode-repo)
+  - [Tech Stack](#tech-stack)
+  - [Repository Structure](#repository-structure)
+  - [Frontend UI/UX](#frontend-uiux)
+  - [Backend API](#backend-api)
+    - [Unit Tests for APIs](#unit-tests-for-apis)
+  - [Database using PostgreSQL](#database-using-postgresql)
 - [II. Deploy Web Application Using DevOps Tools And Practices](#ii-deploy-web-application-using-devops-tools-and-practices)
   - [1. Containerization](#1-containerization)
   - [2. Continuous Integration](#2-continuous-integration)
