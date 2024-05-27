@@ -1018,7 +1018,9 @@ spark.sql("SELECT * FROM nessie.pokemons.names").show()
 
 
 
-
+## IV. References
+- https://medium.com/@Oskarr3/docker-containers-with-ansible-89e98dacd1e2
+- https://medium.com/@leandro.totino87/apache-nessie-git-like-solution-data-version-control-part-1-iceberg-jupyter-994dbc4d2d01
 
 
 
