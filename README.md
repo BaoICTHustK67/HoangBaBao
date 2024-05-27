@@ -9,6 +9,19 @@
 - [III. Research Report](#iii-research-report)
   - [Title: Apache Nessie Git-like Solution for Data Version Control on Kubernetes](#title-apache-nessie-git-like-solution-for-data-version-control-on-kubernetes)
   - [Contents](#contents)
+    - [1. Ý tưởng](#1-ý-tưởng)
+    - [2. Một số thuật ngữ cần phải biết](#2-một-số-thuật-ngữ-cần-phải-biết)
+      - [Metastore là gì?](#metastore-là-gì)
+      - [Nessie là gì?](#nessie-là-gì)
+      - [Lợi ích của Nessie](#lợi-ích-của-nessie)
+      - [Minio là gì?](#minio-là-gì)
+      - [Spark là gì?](#spark-là-gì)
+      - [Liệu có phải là một compute engine?](#liệu-có-phải-là-một-compute-engine)
+      - [Cách hướng tiếp cận khi dùng Spark?](#cách-hướng-tiếp-cận-khi-dùng-spark)
+      - [Jupyter Notebook - Hub là gì?](#jupyter-notebook---hub-là-gì)
+      - [Apache Iceberg là gì?](#apache-iceberg-là-gì)
+      - [Lợi ích của Apache Iceberg](#lợi-ích-của-apache-iceberg)
+      - [Kiến trúc của Apache Iceberg](#kiến-trúc-của-apache-iceberg)-   
   
 ## I. 3 Tier Web Application Development
 ### Backend SourceCode Repo:
