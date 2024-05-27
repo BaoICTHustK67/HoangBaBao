@@ -401,7 +401,9 @@ jobs:
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/ae1c39c4-c386-4068-bd81-3a2b1fff005a)
 
 #### Step by step of docker images deployment
-1. Create 3 instances of VM with configurations that allow ssh between them and my local machine
+1. Create 3 instances of VM with Security Groups configurations that:
+  - Allow ssh between them and my local machine
+  - Allow all the traffic from three security group to flow in and out each others
 
 ![image](https://github.com/BaoICTHustK67/HoangBaBao/assets/123657319/9c43a737-858b-4279-b37c-fba074b0ba1b)
 
