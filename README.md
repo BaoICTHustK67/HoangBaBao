@@ -20,7 +20,20 @@
       - [Jupyter Notebook - Hub là gì?](#jupyter-notebook---hub-là-gì)
       - [Apache Iceberg là gì?](#apache-iceberg-là-gì)
       - [Lợi ích của Apache Iceberg](#lợi-ích-của-apache-iceberg)
-      - [Kiến trúc của Apache Iceberg](#kiến-trúc-của-apache-iceberg)-   
+      - [Kiến trúc của Apache Iceberg](#kiến-trúc-của-apache-iceberg)
+    - [3. Triển khai giải pháp](#3-triển-khai-giải-pháp)
+      - [Một số điều kiện triển khai giải pháp](#một-số-điều-kiện-triển-khai-giải-pháp)
+      - [Cài đặt Nessie](#cài-đặt-nessie)
+      - [Cài đặt Nessie Database (MongoDB)](#cài-đặt-nessie-database-mongodb)
+      - [Cài đặt Minio](#cài-đặt-minio)
+      - [Cài đặt Spark](#cài-đặt-spark)
+      - [Cài đặt Jupyter Notebook](#cài-đặt-jupyter-notebook)
+      - [Triển khai kiến trúc Iceberg vào trong thực tế sử dụng PySpark](#triển-khai-kiến-trúc-iceberg-vào-trong-thực-tế-sử-dụng-pyspark)
+      - [Truy vấn thông tin các lớp metadata của Iceberg table](#truy-vấn-thông-tin-các-lớp-metadata-của-iceberg-table)
+      - [Truy vấn theo thời gian trong Iceberg](#truy-vấn-theo-thời-gian-trong-iceberg)
+      - [Truy vấn các nhánh của cùng một bảng](#truy-vấn-các-nhánh-của-cùng-một-bảng)
+      - [Tạo nhánh mới sử dụng SparkSQL](#tạo-nhánh-mới-sử-dụng-sparksql)
+      - [Merging nhánh](#merging-nhánh) 
   
 ## I. 3 Tier Web Application Development
 ### Backend SourceCode Repo:
@@ -491,7 +504,7 @@ Iceberg là một định dạng hiệu suất cao dành cho các bảng phân t
 
 - Bảng chứa metadata pointer -> metadata file -> manifestlist (tập hợp các manifest file tạo thành snapshot) -> manifest file(chứa những thông tin về data files) -> data files
 
-## Triển khai giải pháp
+## 3. Triển khai giải pháp
 
 ### Một số điều kiện triển khai giải pháp
 - Một cụm K8s
